@@ -20,21 +20,27 @@ using namespace std;
 
 typedef struct icmp_hdr
 {
-    unsigned char   icmp_type;       // Type of ICMP message (e.g. echo request, echo reply, etc.)
-    unsigned char   icmp_code;       // ICMP code (specific to each message type)
-    unsigned short  icmp_checksum;   // Checksum to ensure message integrity
-    unsigned short  _icmp_id;        // ICMP identifier field (usually set to process ID)
-    unsigned short  icmp_sequence;   // ICMP sequence number (used to match echo requests and replies)
-    unsigned int    icmp_timestamp;  // ICMP timestamp (used to calculate RTT)
+    // 8-bit field that specifies the type of ICMP message
+    unsigned char   ICMP_message_type;
+    // 8-bit field that provides context information for the ICMP message
+    unsigned char   icmp_code;
+     // 16-bit field that stores the checksum of the ICMP header and data
+    unsigned short  icmp_checksum;
+    // 16-bit field that identifies the sender of the ICMP message
+    unsigned short  ICMP_id;
+    // 16-bit field that uniquely identifies each ICMP message sent by the sender
+    unsigned short  icmp_sequence;
+    // 32-bit field to store a timestamp related to the ICMP message
+    unsigned int   icmp_timestamp;
 } ICMP_HDR;
 
 
 /*variabes to be used*/
-char gDestination[256] = { 0 };      
+char destination_address[256] = { 0 };      // Destination
 char var[1] = { };
-int gAddressFamily = AF_UNSPEC;     
-int gProtocol = IPPROTO_ICMP;       
+int protocol_addr_family = AF_UNSPEC;     // Address family to use
+int protocol_type = IPPROTO_ICMP;       // Protocol value
 int s;
-int packetlen;
-struct addrinfo *dest;
-struct addrinfo *local;
+int len_of_packet;
+struct address_info *dest;
+struct address_info *local;

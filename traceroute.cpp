@@ -83,3 +83,29 @@ unsigned int route_info_endpoint()
 	cout << "Tracing for: "  << destination_address << endl;
 	return 0;
 }
+
+
+// Function that will specify which routing protocol is being implemented
+unsigned int route_info_protocol(void)
+{
+    // Declare Protocol_version and initialize it to 4.
+    unsigned int Protocol_version;
+    Protocol_version=4;
+
+    // Print the protocol version.
+    cout << "Protocol IPv"  << Protocol_version << endl;
+
+    // Check if the protocol version is IPv4. Set the AF_INET address family if it is.
+    if (Protocol_version == 4 )
+    {
+            protocol_addr_family = AF_INET; // Assuming protocol_addr_family is a global variable.
+    }
+    else // If the protocol version is not IPv4, return 1 to indicate an error.
+    {
+        cout << "It's not IPV4 " << endl;
+        return 1;
+    }
+
+    // Return 0 to indicate success.
+    return 0;
+}

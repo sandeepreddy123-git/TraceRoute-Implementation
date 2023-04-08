@@ -73,3 +73,13 @@ void process_packet();
 
 // Function to compute the checksum of a given buffer.
 unsigned short checksum(unsigned short *buffer, int size);
+
+unsigned int route_info_endpoint()
+{
+
+	// Enter the Trace Destination
+	cout << "Enter the Destination Address " << endl;
+	cin >> destination_address;
+	cout << "Tracing for: "  << destination_address << endl;
+	return 0;
+}

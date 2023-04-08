@@ -36,11 +36,40 @@ typedef struct icmp_hdr
 
 
 /*variabes to be used*/
-char destination_address[256] = { 0 };      // Destination
+char destination_address[256] = { 0 };      
 char var[1] = { };
-int protocol_addr_family = AF_UNSPEC;     // Address family to use
-int protocol_type = IPPROTO_ICMP;       // Protocol value
+int protocol_addr_family = AF_UNSPEC;     
+int protocol_type = IPPROTO_ICMP;       
 int s;
 int len_of_packet;
 struct address_info *dest;
 struct address_info *local;
+
+
+/*Functions to be used*/
+
+int PrintAddress(struct address_info *sa);
+
+int set_ICMP_protocol(struct address_info *sa);
+
+int SetTtl(int s, int ttl);
+
+// Function to resolve an IP address to its corresponding address information.
+struct address_info *resolve_address(char *addr, char *port, int af, int type, int proto);
+
+unsigned int route_info_endpoint(void);
+unsigned int route_info_protocol(void);
+
+// Function to initialize the ICMP header with specified buffer and data size.
+void Intialize_ICMP_Header(char *buf, int datasize);
+
+// Function to set the ICMP sequence number in the buffer.
+void Set_ICMP_Sequence_Number(char *buf);
+
+// Function to compute the ICMP checksum for the packet.
+void Compute_ICMP_Checksum(int s, char *buf, int len_of_packet, struct address_info *dest);
+
+void process_packet();
+
+// Function to compute the checksum of a given buffer.
+unsigned short checksum(unsigned short *buffer, int size);

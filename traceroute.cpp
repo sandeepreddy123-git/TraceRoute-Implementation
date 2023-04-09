@@ -109,3 +109,27 @@ unsigned int route_info_protocol(void)
     // Return 0 to indicate success.
     return 0;
 }
+
+struct address_info *resolve_address(char *addr, char *port, int af, int type, int proto)
+{
+
+	struct address_info addrInfo, *res = NULL;
+
+	int  rc;
+
+	memset(&addrInfo, 0, sizeof(addrInfo));
+	addrInfo.ai_flags = ((addr) ? 0 : AI_PASSIVE);
+	addrInfo.ai_family = af;
+	addrInfo.ai_socktype = type;
+	addrInfo.ai_protocol = proto;
+
+	rc = getaddrinfo(addr, port, &addrInfo, &res);
+	if (rc != 0)
+	{
+		printf("Inavlid address / Address Resolution Failed");
+		return NULL;
+	}
+	else
+		printf("Address Resolution successfull\n");
+	return res;
+}

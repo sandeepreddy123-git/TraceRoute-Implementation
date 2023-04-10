@@ -169,3 +169,51 @@ int PrintAddress(struct address_info *sa)
 
     return 0;  
 }
+
+s = socket(protocol_addr_family, SOCK_RAW, protocol_type);
+//The socket function creates a new socket file descriptor and returns it 
+//on success. The file descriptor represents a communication endpoint and is 
+//used in subsequent function calls to operate on the socket.
+
+if (s == -1)
+{
+    //If the socket file descriptor is invalid (-1), print an error message and return -1
+    printf("Unable to create a socket\n");
+    return -1;
+}
+else
+//Otherwise, print a success message with the socket file descriptor value
+    printf("socket() successfully created!, fd is %d \n",s);
+
+if (protocol_addr_family == AF_INET)
+    len_of_packet += sizeof(ICMP_HDR);
+
+/* Add in the data size */
+//Increase the length of the packet by adding the size of the data
+len_of_packet += SIZE_OF_DATA;
+
+icmpbuf = (char *)malloc(len_of_packet);
+if (icmpbuf == NULL)
+{
+    //If memory allocation fails, print an error message and return -1
+    fprintf(stderr, "Malloc for ICMP buffer failed with error code\n");
+    return -1;
+}
+else
+    printf("Malloc() for ICMP buffer is OK!\n");
+
+/***********/
+//If the protocol address family is IPv4, initialize the ICMP header in the buffer
+if (protocol_addr_family == AF_INET)
+{
+    Intialize_ICMP_Header(icmpbuf, SIZE_OF_DATA);
+}
+
+//Associate the socket with the local IP address and port number
+rc = bind(s, local->ai_addr, local->ai_addrlen);
+if (rc == -1)
+{
+    //If binding fails, print an error message and return 1
+    fprintf(stderr, "bind() failed with error code \n");
+    return 1;
+}

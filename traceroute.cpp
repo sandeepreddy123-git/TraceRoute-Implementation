@@ -133,3 +133,58 @@ struct address_info *resolve_address(char *addr, char *port, int af, int type, i
 		printf("Address Resolution successfull\n");
 	return res;
 }
+
+
+//This function takes a pointer to the address_info structure and prints the address information
+int PrintAddress(struct address_info *sa)
+{
+    //Variable declarations
+    char host[NI_MAXHOST], serv[NI_MAXSERV];
+    int hostlen = NI_MAXHOST, servlen = NI_MAXSERV, rc; //Assigning values to variables
+
+    //getnameinfo function translates a socket address to a corresponding host and service, Here it returns the numerical form of the hostname and port number
+    rc = getnameinfo(sa->ai_addr, sa->ai_addrlen, host, hostlen, serv, servlen, NI_NUMERICHOST | NI_NUMERICSERV);
+
+    //If rc is not equal to zero, then print an error message along with the error code and return the error code
+    if (rc != 0)
+    {
+        fprintf(stderr, "%s: getnameinfo() failed with error code %d\n", _FILE_, rc);
+        return rc;
+    }
+    else
+        printf("PrintAddress(): Address Printed Successfully\n");//If rc is equals to zero, this statement gets executed.
+
+    if (strcmp(serv, "0") != 0)
+    {
+        //Checks if the family type of address in the address_info structure is AF_INET(i.e., IPv4) or not. If true, It prints the host and port enclosed in brackets.
+        if (sa->ai_addr->sa_family == AF_INET)
+            printf("[%s]:%s", host, serv);
+        else
+            //If false(i.e.,IPv6), It prints host and port separated by a colon.
+            printf("%s:%s", host, serv);
+    }
+    else
+        //If the value of serv is "0", then it means that the port number is not available, hence only print the host.
+        printf("%s", host);
+
+    return 0;  
+}
+
+
+// This function sets the type of protocol to be used
+int set_ICMP_protocol(struct address_info *sa)
+{
+	// Initialize the variable `protocol_addr_family` with the value of 
+    // `sa->ai_family` which represents the protocol family for the given address.
+    protocol_addr_family = sa->ai_family;
+
+    // Check if the protocol family is IPv4 (AF_INET).
+    if (protocol_addr_family == AF_INET) {
+        
+        // If it is IPv4, then set the protocol type as `IPPROTO_ICMP`.
+        // `IPPROTO_ICMP` corresponds to the protocol number of the ICMP protocol.
+        protocol_type = IPPROTO_ICMP;
+    }
+    
+    return protocol_type;
+}

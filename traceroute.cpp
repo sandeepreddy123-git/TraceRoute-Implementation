@@ -169,3 +169,22 @@ int PrintAddress(struct address_info *sa)
 
     return 0;  
 }
+
+
+// This function sets the type of protocol to be used
+int set_ICMP_protocol(struct address_info *sa)
+{
+	// Initialize the variable `protocol_addr_family` with the value of 
+    // `sa->ai_family` which represents the protocol family for the given address.
+    protocol_addr_family = sa->ai_family;
+
+    // Check if the protocol family is IPv4 (AF_INET).
+    if (protocol_addr_family == AF_INET) {
+        
+        // If it is IPv4, then set the protocol type as `IPPROTO_ICMP`.
+        // `IPPROTO_ICMP` corresponds to the protocol number of the ICMP protocol.
+        protocol_type = IPPROTO_ICMP;
+    }
+    
+    return protocol_type;
+}

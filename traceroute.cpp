@@ -279,3 +279,42 @@ if (rc == -1)
     fprintf(stderr, "bind() failed with error code \n");
     return 1;
 }
+else{
+		printf("bind() is OK!: Local Address Bound\n");
+		//PrintAddress(local->ai_addr, local->ai_addrlen);
+	    ttl = 1;  //Intially the TTL is set to 1 and then incremented until it reaches destination
+
+		do
+		{
+			notdone = 1;
+			SetTtl(s, ttl); // set the Time to live
+
+			// Set the sequence number and compute the checksum
+			Set_ICMP_Sequence_Number(icmpbuf);
+			Compute_ICMP_Checksum(s, icmpbuf, len_of_packet, dest);
+
+			// Send the ICMP echo request
+			std::thread first (&process_packet);     // spawn new thread that calls foo()
+			rc = sendto(s, icmpbuf, len_of_packet, 0, dest->ai_addr, dest->ai_addrlen);
+			//send(s,icmpbuf,len_of_packet,0);
+			if (rc == -1)
+			{
+				fprintf(stderr, "sendto() terminated with an error\n");
+				return -1;
+			}
+			else
+				printf("sendto() executed successfully\n");
+			first.join();
+
+
+			ttl++;
+			sleep(1);
+
+		} while ((notdone) && (ttl < gTtl));
+
+		free(icmpbuf);
+
+
+	}
+    return 0;
+}

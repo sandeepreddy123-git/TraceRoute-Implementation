@@ -318,3 +318,41 @@ else{
 	}
     return 0;
 }
+
+// This function will set the TTL
+int SetTtl(int s, int ttl)
+{
+    int optlevel, option, rc;
+    rc = 0;
+
+    // Check the protocol address family to determine which socket options to use
+    if (protocol_addr_family == AF_INET)
+    {
+        optlevel = IPPROTO_IP;
+        option = IP_TTL;
+    }
+    else
+    {
+        rc = 0; // placeholder value
+    }
+
+    // If no errors occurred while checking the protocol family,
+    // set the Time-to-Live (TTL) value for the socket using setsockopt()
+    if (rc == 0)
+    {
+        rc = setsockopt(s, optlevel, option, (char *)&ttl, sizeof(ttl));
+    }
+    // If an error occurred while checking the protocol family or setting the TTL,
+    // print an error message to stderr.
+    else if (rc == -1)
+    {
+        fprintf(stderr, "SetTtl(): terminated with an error\n");
+    }
+    // If the function was successful, print a success message to stdout.
+    else
+        printf("SetTtl(): successfully executed\n");
+
+    // Return the final results of the function as an integer.
+    return rc;
+}
+

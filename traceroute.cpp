@@ -356,3 +356,25 @@ int SetTtl(int s, int ttl)
     return rc;
 }
 
+
+
+// This function takes an integer s, a character pointer named buf, an integer len_of_packet, and a struct address_info pointer named dest as arguments
+void Compute_ICMP_Checksum(int s, char *buf, int len_of_packet, struct address_info *dest)
+{
+    // Check if the protocol address family is IPv4
+    if (protocol_addr_family == AF_INET)
+    {
+        // Declare the pointer icmpv4 of type ICMP_HDR and set it to NULL
+        ICMP_HDR    *icmpv4 = NULL;
+        
+        // Cast the buffer to an ICMP header struct pointer
+        icmpv4 = (ICMP_HDR *)buf;
+        
+        // Set the ICMP checksum field in the buffer to 0
+        icmpv4->icmp_checksum = 0;
+
+        // Calculate the ICMP checksum for the packet using the checksum() function
+        // The checksum() function calculates the checksum value from the given buffer and the length of the packet
+        icmpv4->icmp_checksum = checksum((unsigned short *)buf, len_of_packet);
+    }
+}

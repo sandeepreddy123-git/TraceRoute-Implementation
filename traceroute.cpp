@@ -378,3 +378,36 @@ void Compute_ICMP_Checksum(int s, char *buf, int len_of_packet, struct address_i
         icmpv4->icmp_checksum = checksum((unsigned short *)buf, len_of_packet);
     }
 }
+
+
+// This function will intialize the ICMP header
+void Intialize_ICMP_Header(char *buf, int data_size)
+
+{
+	ICMP_HDR   *icmp_hdr = NULL;
+	char       *datagram = NULL;
+	icmp_hdr = (ICMP_HDR *)buf;
+	icmp_hdr->ICMP_message_type = REQUEST_TYPE;        // request an ICMP echo
+	icmp_hdr->icmp_code = REQUEST_CODE;
+	icmp_hdr->ICMP_id = (unsigned short)getpid();
+	icmp_hdr->icmp_checksum = 0;
+	icmp_hdr->icmp_sequence = 0;
+	icmp_hdr->icmp_timestamp =  (unsigned int)time(NULL);
+	datagram = buf + sizeof(ICMP_HDR);
+	// Place some junk in the buffer.
+	memset(datagram, 'E', data_size);
+}
+
+// This Function will set the sequence number
+void Set_ICMP_Sequence_Number(char *buf)
+{
+	unsigned long    seq_num = 0;
+	seq_num = (unsigned long)time(NULL);
+
+	if (protocol_addr_family == AF_INET)
+	{
+		ICMP_HDR    *icmpv4 = NULL;
+		icmpv4 = (ICMP_HDR *)buf;
+		icmpv4->icmp_sequence = (unsigned short)seq_num;
+	}
+}

@@ -411,3 +411,75 @@ void Set_ICMP_Sequence_Number(char *buf)
 		icmpv4->icmp_sequence = (unsigned short)seq_num;
 	}
 }
+
+// This function will process the ICMP packet
+void process_packet()
+{
+	unsigned char  ipv4_time_to_live[1] = {0};
+	unsigned char  ipv4_protocol_icmp[1] = {0};
+	unsigned short ipv4_header_checksum[1] = {0};
+	unsigned int   ipv4_source_ipAddress[1] = {0};
+	unsigned int   ipv4_destination_ipAddress[1] = {0};
+	unsigned char  ICMP_message_type[1] = {0};
+	unsigned char  icmp_code[1] = {0};
+	unsigned short icmp_checksum[1] = {0};
+	unsigned short icmp_identifier[1] = {0};
+	unsigned short icmp_sequence_number[1] = {0};
+	unsigned char receiver_buffer[65000] = {0};
+	unsigned char bit_parsing_buffer[1] = {0};
+	unsigned char header_version[1] = {0};
+	unsigned char header_length[1] = {0};
+	unsigned char diff_serv_codepoint[1] = {0};
+	unsigned char server_congestion[1] = {0};
+    unsigned short total_length[1] = {0};
+    unsigned short identification [1] = {0};
+	unsigned short flags [1] = {0};
+	unsigned char time_to_live[1] = {0};
+	unsigned char protocol_icmp[1]={0};
+	unsigned short header_checksum[1] = {0};
+	unsigned int   source_ipAddress[1] = {0};
+	unsigned int   destination_ipAddress[1] = {0};
+	unsigned char  ipv4_type[1] = {0};
+	unsigned char  ipv4_code[1] = {0};
+	unsigned short ipv4_checksum[1] = {0};
+	unsigned char  ipv4_version[1] = {0};
+	unsigned char  ipv4_length[1] = {0};
+	unsigned char  ipv4_diff_serv_field[1] = {0}; 
+	unsigned short ipv4_total_length[1] = {0};
+	unsigned short ipv4_identification [1] = {0};
+	unsigned short ipv4_flags [1] = {0};
+
+
+
+
+	int status; // Declare integer variable status
+
+	printf("Debug- PacketLength %d \n", len_of_packet); // Print packet length for debugging purposes
+	// status = recv(s, receiver_buffer, len_of_packet,0);
+	status = recv(s, receiver_buffer, 56, 0); // Receive network packet and store it in receiver buffer array. The size of the packet is either 56 bytes or determined by len_of_packet variable.
+	printf("recv from value %d \n", status);  // Print the number of bytes received for debugging purposes.
+
+	for (int x = 0; x < len_of_packet; x++) // Loop through each byte in the received packet and print it out in hexadecimal format
+	{
+		printf("%x", receiver_buffer[x]);
+	}
+	printf("\n");
+
+	*header_version = *receiver_buffer >> 4;	// Extract header version from first byte in received packet using bit manipulation. Shift right four bits to get leftmost four bits. Assign this value to header_version array.
+	printf("  Version: %x\n", *header_version); // Print the extracted header version for debugging purposes.
+
+	// Parsing- Header Length
+	*bit_parsing_buffer = *receiver_buffer;			 // Assign the first byte of the received packet to bit_parsing_buffer array for further manipulation
+	*header_length = *bit_parsing_buffer << 4;		 // Extract header length from bit_parsing_buffer using bit manipulation. Shift left four bits effectively discarding the rightmost four bits. Assign the truncated value to header_length array.
+	*header_length = *header_length >> 4;			 // Shifts the header length back four bits to restore the original offset
+	printf("  Header Length: %x\n", *header_length); // Print the extracted header length for debugging purposes.
+
+	// Parsing- Differentianted Service Field
+	printf("  Differentianted Service Field : 0x%x\n", *(receiver_buffer + 1));							 // Print Differentiated Service Field for debugging purposes
+	*bit_parsing_buffer = *(receiver_buffer + 1);														 // Assign the second byte of the received packet to bit_parsing_buffer array for further manipulation
+	*diff_serv_codepoint = *bit_parsing_buffer >> 2;													 // Extract Differentiated Service Codepoint from bit_parsing_buffer using bit manipulation. Shift right two bits to get leftmost six bits. Assign this value to diff_serv_codepoint array.
+	printf("     Differentianted Service Codepoint : 0x%x\n", *diff_serv_codepoint);					 // Print the extracted Differentiated Service Codepoint for debugging purposes.
+	*server_congestion = *bit_parsing_buffer << 6;											 // Extract Explicit Congestion Notification bits from bit_parsing_buffer using bit manipulation. Shift left six bits effectively discarding the rightmost two bits. Assign the truncated value to diff_serv_explicit_congestion array.
+	*server_congestion = *server_congestion >> 6;								 // Shifts the Explicit Congestion Notification bits back six bits to restore original offset.
+	printf("     Differentianted Service Explicit Congection : 0x%x\n", *server_congestion); // Print the extracted Explicit Congestion Notification bits for debugging purposes.
+

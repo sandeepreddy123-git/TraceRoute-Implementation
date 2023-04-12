@@ -482,4 +482,61 @@ void process_packet()
 	*server_congestion = *bit_parsing_buffer << 6;											 // Extract Explicit Congestion Notification bits from bit_parsing_buffer using bit manipulation. Shift left six bits effectively discarding the rightmost two bits. Assign the truncated value to diff_serv_explicit_congestion array.
 	*server_congestion = *server_congestion >> 6;								 // Shifts the Explicit Congestion Notification bits back six bits to restore original offset.
 	printf("     Differentianted Service Explicit Congection : 0x%x\n", *server_congestion); // Print the extracted Explicit Congestion Notification bits for debugging purposes.
+	
+	// Parsing- Total Length
+	//*total_length = *(receiver_buffer + 4);
+	memcpy(total_length, receiver_buffer + 2, 2);
+	printf("  Total Length: 0x%x (%d)\n", be16toh(*total_length), be16toh(*total_length));
 
+	// Parsing- Identification
+	memcpy(identification, receiver_buffer + 4, 2);
+	printf("  Identification: 0x%x (%d)\n", be16toh(*identification), be16toh(*identification));
+
+	// Parsing- Flags
+	memcpy(flags, receiver_buffer + 6, 2);
+	printf("  Flags: 0x%x (%d)\n", be16toh(*flags), be16toh(*flags));
+
+	// Parsing- TTL
+	*time_to_live = *(receiver_buffer + 8);
+	// memcpy ( time_to_live,receiver_buffer+8 ,1);
+	printf("  TTL: 0x%x (%d)\n", *time_to_live, *time_to_live);
+
+	// Parsing- Protocol
+	*protocol_icmp = *(receiver_buffer + 9);
+	printf("  Protocol: 0x%x (%d)\n", *protocol_icmp, *protocol_icmp);
+
+	// Parsing- Header Checksum
+	memcpy(header_checksum, receiver_buffer + 10, 2);
+	printf("  Header Checksum: 0x%x (%d)\n", be16toh(*header_checksum), be16toh(*header_checksum));
+
+    //Parsing- Source IP Address
+	struct sockaddr_in source_ip_structure;										 
+	char *source_addr;															 
+	memcpy(source_ipAddress, receiver_buffer + 12, 4);							 // Copy the 4 bytes of data starting at index 12 in receiver_buffer array into the source_ipAddress array.
+	source_ip_structure.sin_addr.s_addr = *source_ipAddress;					 // Assign the value in source_ipAddress array to the sin_addr field in source_ip_structure.
+	source_addr = inet_ntoa(source_ip_structure.sin_addr);						 // Convert the binary format of the source IP address in source_ip_structure from network byte order to dotted decimal notation using inet_ntoa() function. Assign the result as a string to the source_addr pointer.
+	printf("  Source IP: %s (0x%x)\n", source_addr, be32toh(*source_ipAddress)); // Print the extracted source IP address in both dotted decimal notation and hexadecimal format.
+
+	// Parsing- Destination IP Address
+	struct sockaddr_in dest_ip_structure;												 
+	char *dest_addr;																	 
+	memcpy(destination_ipAddress, receiver_buffer + 16, 4);								 // Copy the 4 bytes of data starting at index 16 in receiver_buffer array into the destination_ipAddress array.
+	dest_ip_structure.sin_addr.s_addr = *destination_ipAddress;							 // Assign the value in destination_ipAddress array to the sin_addr field in dest_ip_structure.
+	dest_addr = inet_ntoa(dest_ip_structure.sin_addr);									 // Convert the binary format of the destination IP address in dest_ip_structure from network byte order to dotted decimal notation using inet_ntoa() function. Assign the result as a string to the dest_addr pointer.
+	printf("  Destination IP: %s (0x%x)\n", dest_addr, be32toh(*destination_ipAddress)); // Print the extracted destination IP address in both dotted decimal notation and hexadecimal format.
+
+	// Parsing- IPV4 Type
+	*ipv4_type = *(receiver_buffer + 20);						  // Assign the value at index 20 in receiver_buffer to the ipv4_type array.
+	printf("    IPV4 Type: 0x%x (%d)\n", *ipv4_type, *ipv4_type); 
+
+	// Parsing- IPV4 Code
+	*ipv4_code = *(receiver_buffer + 21);						  // Assign the value at index 21 in receiver_buffer to the ipv4_code array.
+	printf("    IPV4 Code: 0x%x (%d)\n", *ipv4_code, *ipv4_code); 
+
+	// Parsing- IPV4 Checksum
+	memcpy(ipv4_checksum, receiver_buffer + 22, 2);												// Copy the 2 bytes of data starting at index 22 in receiver_buffer array into the ipv4_checksum array.
+	printf("    IPV4 Checksum: 0x%x (%d)\n", be16toh(*ipv4_checksum), be16toh(*ipv4_checksum)); // Convert the network byte order data in ipv4_checksum array to host byte order using be16toh() function. Print the extracted IPV4 Checksum for debugging purposes.
+
+	// Parsing- IPV4 Version
+	*ipv4_version = *(receiver_buffer + 28) >> 4; // Extract the version number of IPV4 packet from first 4 bits of byte at index 28 in receiver_buffer using bit manipulation. Shift right four bits to get leftmost four bits. Assign this value to ipv4_version array.
+	printf("    Version: %x\n", *ipv4_version);	  

@@ -182,16 +182,21 @@ if (rc == -1)
 		{
 			notdone = 1;
 			SetTtl(s, ttl); // set the Time to live
+			std::chrono::high_resolution_clock::time_point start_time;
+
 
 			// Set the sequence number and compute the checksum
 			Set_ICMP_Sequence_Number(icmpbuf);
 			Compute_ICMP_Checksum(s, icmpbuf, len_of_packet, dest);
 
 			// Send the ICMP echo request
+			start_time = std::chrono::high_resolution_clock::now();
 			std::thread first (&process_packet);     // spawn new thread that calls foo()
 			printf("sending the data to the destination : %d",ttl);
 			rc = sendto(s, icmpbuf, len_of_packet, 0, dest->ai_addr, dest->ai_addrlen);
-			//send(s,icmpbuf,len_of_packet,0);
+			auto end_time = std::chrono::high_resolution_clock::now();
+			auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+			std::cout << "Time taken: " << elapsed_time.count() << " microseconds" << std::endl;
 			if (rc == -1)
 			{
 				fprintf(stderr, "sendto() terminated with an error\n");

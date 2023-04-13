@@ -540,3 +540,77 @@ void process_packet()
 	// Parsing- IPV4 Version
 	*ipv4_version = *(receiver_buffer + 28) >> 4; // Extract the version number of IPV4 packet from first 4 bits of byte at index 28 in receiver_buffer using bit manipulation. Shift right four bits to get leftmost four bits. Assign this value to ipv4_version array.
 	printf("    Version: %x\n", *ipv4_version);	  
+	
+	// Parsing- IPV4 Length
+	*bit_parsing_buffer = *(receiver_buffer + 28); // Assign receiver_buffer to bit_parsing_buf, this contain 1 byte
+	*ipv4_length = *bit_parsing_buffer << 4;	   // Truncate half of the byte so only 4 bit length remains
+	*ipv4_length = *ipv4_length >> 4;			   // Shift buffer back the orignal offset
+	printf("    Length: %x\n", *ipv4_length);
+
+	// Parsing- IPV4 Differential Dervices
+	*ipv4_diff_serv_field = *(receiver_buffer + 29);
+	printf("    Differentianted Service Field: 0x%x (%d)\n", *ipv4_diff_serv_field, *ipv4_diff_serv_field);
+
+	// Parsing- IPV4 Total Length
+	//*total_length = *(receiver_buffer + 4);
+	memcpy(ipv4_total_length, receiver_buffer + 30, 2);
+	printf("    IPV4 Total Length: 0x%x (%d)\n", be16toh(*ipv4_total_length), be16toh(*ipv4_total_length));
+
+	// Parsing- IPV4 Identification
+	memcpy(ipv4_identification, receiver_buffer + 32, 2);
+	printf("    IPV4 Identification: 0x%x (%d)\n", be16toh(*ipv4_identification), be16toh(*ipv4_identification));
+
+	// Parsing- IPV4 Flags
+	memcpy(ipv4_flags, receiver_buffer + 34, 2);
+	printf("    IPV4 Flags: 0x%x (%d)\n", be16toh(*ipv4_flags), be16toh(*ipv4_flags));
+
+	// Parsing- IPV4 TTL
+	*ipv4_time_to_live = *(receiver_buffer + 36);
+	// memcpy ( time_to_live,receiver_buffer+8 ,1);
+	printf("    IPV4-TTL: 0x%x (%d)\n", *ipv4_time_to_live, *ipv4_time_to_live);
+
+	// Parsing- IPV4 Protocol
+	*ipv4_protocol_icmp = *(receiver_buffer + 37);
+	printf("    IPV4-Protocol: 0x%x (%d)\n", *ipv4_protocol_icmp, *ipv4_protocol_icmp);
+
+	// Parsing- IPV4 Checksum
+	memcpy(ipv4_header_checksum, receiver_buffer + 38, 2);
+	printf("    IPV4-Checksum: 0x%x (%d)\n", be16toh(*ipv4_header_checksum), be16toh(*ipv4_header_checksum));
+	
+    //Parsing- IPV4 Source IP Address
+	struct sockaddr_in icmp_source_ip_structure;
+	char *icmp_source_addr;
+	memcpy(ipv4_source_ipAddress, receiver_buffer + 40, 4);										  // Copy the 4 bytes of data starting at index 40 in receiver_buffer array into the ipv4_source_ipAddress array.
+	icmp_source_ip_structure.sin_addr.s_addr = *ipv4_source_ipAddress;							  // Assign the value in ipv4_source_ipAddress array to the sin_addr field in icmp_source_ip_structure.
+	icmp_source_addr = inet_ntoa(icmp_source_ip_structure.sin_addr);							  // Convert the binary format of the ICMP source IP address in icmp_source_ip_structure from network byte order to dotted decimal notation using inet_ntoa() function. Assign the result as a string to the icmp_source_addr pointer.
+	printf("    ICMP-Source IP: %s (0x%x)\n", icmp_source_addr, be32toh(*ipv4_source_ipAddress)); // Print the extracted ICMP source IP address in both dotted decimal notation and hexadecimal format.
+
+	// Parsing- IPV4 Destination IP Address
+	struct sockaddr_in icmp_dest_ip_structure;
+	char *icmp_dest_addr;
+	memcpy(ipv4_destination_ipAddress, receiver_buffer + 44, 4);										   // Copy the 4 bytes of data starting at index 44 in receiver_buffer array into the ipv4_destination_ipAddress array.
+	icmp_dest_ip_structure.sin_addr.s_addr = *ipv4_destination_ipAddress;								   // Assign the value in ipv4_destination_ipAddress array to the sin_addr field in icmp_dest_ip_structure.
+	icmp_dest_addr = inet_ntoa(icmp_dest_ip_structure.sin_addr);										   // Convert the binary format of the ICMP destination IP address in icmp_dest_ip_structure from network byte order to dotted decimal notation using inet_ntoa() function. Assign the result as a string to the icmp_dest_addr pointer.
+	printf("    ICMP- Destination IP: %s (0x%x)\n", icmp_dest_addr, be32toh(*ipv4_destination_ipAddress)); // Print the extracted ICMP destination IP address in both dotted decimal notation and hexadecimal format.
+
+	//Parsing- ICMP Type
+		*ICMP_message_type = *(receiver_buffer+48);
+    	printf("      ICMP-Type: 0x%x (%d)\n",*ICMP_message_type,*ICMP_message_type);
+
+	//Parsing- ICMP Code
+		*icmp_code = *(receiver_buffer+49);
+    	printf("      ICMP-Code: 0x%x (%d)\n",*icmp_code,*icmp_code);
+
+   //Parsing- ICMP Checksum
+  	    memcpy ( icmp_checksum,receiver_buffer+50 ,2);
+		printf("      ICMP-Checksum: 0x%x (%d)\n",be16toh(*icmp_checksum),be16toh(*icmp_checksum));
+
+    //Parsing- ICMP Identifier
+    	memcpy ( icmp_identifier,receiver_buffer+52 ,2);
+		printf("      ICMP-Identifier: 0x%x (%d)\n",be16toh(*icmp_identifier),be16toh(*icmp_identifier));
+
+		  //Parsing- ICMP Sequence Number
+    	memcpy ( icmp_sequence_number,receiver_buffer+54 ,2);
+		printf("      ICMP-Sequence: 0x%x (%d)\n",be16toh(*icmp_sequence_number),be16toh(*icmp_sequence_number));
+
+}

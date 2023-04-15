@@ -9,13 +9,14 @@
 #include <iostream>
 #include <thread>
 #include <unistd.h>
+#include <sys/types.h>
 
 
 #define REQUEST_TYPE   8    // used to send ICMP echo requests to host
 #define REQUEST_CODE   0
 #define ICMPV4_ECHO           8
 #define SIZE_OF_DATA      32       // defaut size_of_data
-#define DEFAULT_TTL            30       // default timeout
+#define DEFAULT_TTL            40       // default timeout
 
 using namespace std;
 
@@ -45,20 +46,20 @@ int protocol_addr_family = AF_UNSPEC;     // Address family to use
 int protocol_type = IPPROTO_ICMP;       // Protocol value
 int s;
 int len_of_packet;
-struct address_info *dest;
-struct address_info *local;
+struct addrinfo *dest;
+struct addrinfo *local;
 
 
 /*Functions to be used*/
 
-int PrintAddress(struct address_info *sa);
+int PrintAddress(struct addrinfo *sa);
 
-int set_ICMP_protocol(struct address_info *sa);
+int set_ICMP_protocol(struct addrinfo *sa);
 
 int SetTtl(int s, int ttl);
 
 // Function to resolve an IP address to its corresponding address information.
-struct address_info *resolve_address(char *addr, char *port, int af, int type, int proto);
+struct addrinfo *resolve_address(char *addr, char *port, int af, int type, int proto);
 
 // Functions to retrieve the routing information for the endpoint and protocol,
 unsigned int route_info_endpoint(void);
@@ -71,7 +72,7 @@ void Intialize_ICMP_Header(char *buf, int data_size);
 void Set_ICMP_Sequence_Number(char *buf);
 
 // Function to compute the ICMP checksum for the packet.
-void Compute_ICMP_Checksum(int s, char *buf, int len_of_packet, struct address_info *dest);
+void Compute_ICMP_Checksum(int s, char *buf, int len_of_packet, struct addrinfo *dest);
 
 void process_packet();
 
@@ -232,10 +233,10 @@ if (rc == -1)
 
 
 
-struct address_info *resolve_address(char *addr, char *port, int af, int type, int proto)
+struct addrinfo *resolve_address(char *addr, char *port, int af, int type, int proto)
 {
 
-	struct address_info addrInfo, *res = NULL;
+	struct addrinfo addrInfo, *res = NULL;
 
 	int  rc;
 
@@ -340,7 +341,7 @@ int SetTtl(int s, int ttl)
 
 
 
-int set_ICMP_protocol(struct address_info *sa)
+int set_ICMP_protocol(struct addrinfo *sa)
 {
 	// Initialize the variable `protocol_addr_family` with the value of 
     // `sa->ai_family` which represents the protocol family for the given address.
@@ -358,8 +359,8 @@ int set_ICMP_protocol(struct address_info *sa)
 }
 
 
-//This function takes a pointer to the address_info structure and prints the address information
-int PrintAddress(struct address_info *sa)
+//This function takes a pointer to the addrinfo structure and prints the address information
+int PrintAddress(struct addrinfo *sa)
 {
     //Variable declarations
     char host[NI_MAXHOST], serv[NI_MAXSERV];
@@ -379,7 +380,7 @@ int PrintAddress(struct address_info *sa)
 
     if (strcmp(serv, "0") != 0)
     {
-        //Checks if the family type of address in the address_info structure is AF_INET(i.e., IPv4) or not. If true, It prints the host and port enclosed in brackets.
+        //Checks if the family type of address in the addrinfo structure is AF_INET(i.e., IPv4) or not. If true, It prints the host and port enclosed in brackets.
         if (sa->ai_addr->sa_family == AF_INET)
             printf("[%s]:%s", host, serv);
         else
@@ -446,8 +447,8 @@ void Set_ICMP_Sequence_Number(char *buf)
 	}
 }
 
-// This function takes an integer s, a character pointer named buf, an integer len_of_packet, and a struct address_info pointer named dest as arguments
-void Compute_ICMP_Checksum(int s, char *buf, int len_of_packet, struct address_info *dest)
+// This function takes an integer s, a character pointer named buf, an integer len_of_packet, and a struct addrinfo pointer named dest as arguments
+void Compute_ICMP_Checksum(int s, char *buf, int len_of_packet, struct addrinfo *dest)
 {
     // Check if the protocol address family is IPv4
     if (protocol_addr_family == AF_INET)

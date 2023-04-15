@@ -1,0 +1,4 @@
+This project is developed with C++, In order to compile the program use "g++ -o traceroute traceroute.cpp -lpthread" and inorder to execute the program use
+./traceroute
+
+The program prompts you to enter the destination name that we would like to find the trace for !!
